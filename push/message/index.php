@@ -6,6 +6,15 @@ include '../../controller/push.php';
 
 $push = new Push();
 
-respond ($push->new_msg_notif($_GET['id']));
+if (isset($_GET['icon']))
+	if (isset($_GET['sound']))
+		respond ($push->new_msg_notif($_GET['id'],$_GET['icon'],$_GET['sound']));
+	else
+		respond ($push->new_msg_notif($_GET['id'],$_GET['icon']));
+else if(isset($_GET['sound']))
+	respond ($push->new_msg_notif($_GET['id'],null,$_GET['sound']));
+else
+	respond ($push->new_msg_notif($_GET['id']));
+	
 
 ?>
