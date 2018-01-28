@@ -1,7 +1,7 @@
 <?php
 
 define ("TITLE_NEW_MSG", "Pesan baru dari Admin SAS");
-define ("TITLE_NEW_SCHEDULE", "Jadwal Tes Rekrutment SAS");
+define ("TITLE_NEW_SCHEDULE", "Jadwal baru dari Admin SAS");
 define ("ICON_NEW_MSG", "chats");
 define ("ICON_NEW_SCHEDULE", "schedule");
 
@@ -67,6 +67,92 @@ class Push
 				$msg_payload->image = $img;
 			else
 				$msg_payload->image = ICON_NEW_MSG;
+
+			// Set sound
+			if (isset($sound))
+				$msg_payload->soundname = $this->getSound($sound); // changeable!!
+
+			$target = $result[0]['kode_barkode'];
+
+			return $this->Firebase->SendNotification($msg_payload, $target);
+			 
+		}
+		catch(PDOException $e)
+		{
+			echo $e->getMessage();
+		}
+	}
+
+	public function new_interview_notif($intrvw_id, $img=null, $sound=null) {
+		try
+		{
+			$stmt = $this->conn->prepare("SELECT i.*,m.kode_barkode FROM tb_info_interview i INNER JOIN tb_karyawan k on k.no_ktp = i.no_ktp INNER JOIN tb_karyawan_mobile m ON m.id = k.id WHERE kd_interview = :kode");
+
+			$stmt->execute(array(':kode'=>$intrvw_id));
+
+			$result=$stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			// prepping standard Notif contents...
+			$msg_payload = (object)[];
+			$msg_payload->title = TITLE_NEW_SCHEDULE;
+			$msg_payload->message = 'Interview, Tgl: ' . $result[0]['date_interview'];
+			$msg_payload->notId = rand(1,1000);
+
+			// additional data specific to schedule
+			$msg_payload->notif_type = 'schedule';
+			$msg_payload->schedule_type = 'interview';
+			$msg_payload->schedule_note = $result[0]['detail'];
+			$msg_payload->schedule_date = $result[0]['date_interview'];
+			$msg_payload->schedule_id = $result[0]['kd_interview'];
+
+			// Set icons
+			if (isset($img))
+				$msg_payload->image = $img;
+			else
+				$msg_payload->image = ICON_NEW_SCHEDULE;
+
+			// Set sound
+			if (isset($sound))
+				$msg_payload->soundname = $this->getSound($sound); // changeable!!
+
+			$target = $result[0]['kode_barkode'];
+
+			return $this->Firebase->SendNotification($msg_payload, $target);
+			 
+		}
+		catch(PDOException $e)
+		{
+			echo $e->getMessage();
+		}
+	}
+
+	public function new_test_notif($test_id, $img=null, $sound=null) {
+		try
+		{
+			$stmt = $this->conn->prepare("SELECT t.*,m.kode_barkode FROM tb_info_test t INNER JOIN tb_karyawan k on k.no_ktp = t.no_ktp INNER JOIN tb_karyawan_mobile m ON m.id = k.id WHERE kode_test = :kode");
+
+			$stmt->execute(array(':kode'=>$test_id));
+
+			$result=$stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			// prepping standard Notif contents...
+			$msg_payload = (object)[];
+			$msg_payload->title = TITLE_NEW_SCHEDULE;
+			$msg_payload->message = 'Test, Tgl: ' . $result[0]['date_test'];
+			$msg_payload->notId = rand(1,1000);
+
+			// additional data specific to schedule
+			$msg_payload->notif_type = 'schedule';
+			$msg_payload->schedule_type = 'test';
+			$msg_payload->schedule_note = $result[0]['keterangan'];
+			$msg_payload->schedule_date = $result[0]['date_test'];
+			$msg_payload->schedule_id = $result[0]['kode_test'];
+
+			// Set icons
+			if (isset($img))
+				$msg_payload->image = $img;
+			else
+				$msg_payload->image = ICON_NEW_SCHEDULE;
 
 			// Set sound
 			if (isset($sound))
