@@ -50,7 +50,7 @@ class Push
 	public function msg_notif($msg_id, $img=null, $sound=null) {
 		try
 		{
-			$stmt = $this->conn->prepare("SELECT m.*,t.kode_barkode FROM tb_detail_push m INNER JOIN tb_push p on p.kd_push = m.kd_push INNER JOIN tb_karyawan k on k.no_KTP = p.kepada  LEFT JOIN tb_karyawan_mobile t ON t.id = k.id WHERE m.kd_push = :kode");
+			$stmt = $this->conn->prepare("SELECT m.*,t.kode_barkode, s.nama_subject as subjek FROM tb_detail_push m INNER JOIN tb_push p on p.kd_push = m.kd_push INNER JOIN tb_subject_push s ON s.kd_subject=p.subject INNER JOIN tb_karyawan k on k.no_KTP = p.kepada  LEFT JOIN tb_karyawan_mobile t ON t.id = k.id WHERE m.kd_push = :kode");
 
 			$stmt->execute(array(':kode'=>$msg_id));
 
@@ -59,7 +59,7 @@ class Push
 			// prepping standard Notif contents...
 			$msg_payload = (object)[];
 			$msg_payload->title = TITLE_NEW_MSG;
-			$msg_payload->message = $result[0]['pesan'];
+			$msg_payload->message = $result[0]['subjek'];
 			$msg_payload->notId = rand(1,1000);
 
 			// Set icons
