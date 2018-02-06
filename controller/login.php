@@ -1,5 +1,8 @@
 <?php
 
+define ("SECRET_SERVER_KEY", "Mister_Toni");
+define ("TOKEN_EXPIRY", 6000); // in sec
+
 class Login
 {	
 
@@ -12,6 +15,26 @@ class Login
 		$this->conn = $db;
     }
 	
+	private function generate_JWT($email, $id, $nik, $foto, $firstname, $lastname) {
+		$issueTime = time();
+		$newCandidateFlag = ($nik == '') ? true : false;
+		$payload = array (
+			"iat" => $issueTime,
+			"exp" => $issueTime + TOKEN_EXPIRY,
+			"detail" => [
+				"no_ktp" => $id,
+				"email" => $email,
+				"new_candidate" => $newCandidateFlag,
+				"no_NIK" => $nik,
+				"foto" => $foto,
+				"nama_depan" => $firstname,
+				"nama_belakang" => $lastname
+
+			]
+		);
+		return JWT::encode($payload, SECRET_SERVER_KEY);
+	}
+
 	public function tryLogin($u,$p)
 		{
 			try
@@ -32,6 +55,7 @@ class Login
 						$response = (object)[];
 						$response->status = 200;
 						$response->detail = $userRow;
+						$response->_tkn = $this->generate_JWT($u, $userRow['no_ktp'], $userRow['no_NIK'], $userRow['foto'], $userRow['nama_depan'], $userRow['nama_belakang']);
 						return $response;
 					}
 					else
