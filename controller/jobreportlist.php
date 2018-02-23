@@ -48,10 +48,10 @@ class JobReportList
 			
 			try
 			{
-				$stmt = $this->conn->prepare("SELECT tb_list_job.id, tb_job.kode_detail_job, tb_list_job.nama_job, tb_list_job.deskripsi_job, kode_admin, start_at, report_date, report FROM tb_job INNER JOIN tb_list_karyawan ON tb_list_karyawan.kode_list_karyawan=tb_job.nomor_kontrak INNER JOIN tb_list_job ON tb_list_job.kode_detail_job=tb_job.kode_detail_job LEFT JOIN tb_report_job on tb_report_job.kode_detail_job = tb_list_job.id AND tb_report_job.no_nip=tb_list_karyawan.no_nip WHERE tb_list_karyawan.no_nip =:nip");
+				$stmt = $this->conn->prepare("SELECT tb_list_job.id, tb_job.kode_detail_job, tb_list_job.nama_job, tb_list_job.deskripsi_job, tb_list_job.kode_admin, start_at, report_date, report FROM tb_kerjasama_perusahan INNER JOIN tb_list_karyawan ON tb_list_karyawan.kode_list_karyawan=tb_kerjasama_perusahan.kode_list_karyawan INNER JOIN tb_job ON tb_job.nomor_kontrak = tb_kerjasama_perusahan.nomor_kontrak INNER JOIN  tb_list_job ON tb_list_job.kode_detail_job=tb_job.kode_detail_job LEFT JOIN tb_report_job on tb_report_job.kode_detail_job = tb_list_job.id AND tb_report_job.no_nip=tb_list_karyawan.no_nip WHERE tb_list_karyawan.no_nip =:nip");
 				$stmt->execute(array(':nip'=>$u));
 
-				$stmt2 = $this->conn->prepare("SELECT tb_job.kode_detail_job FROM tb_job INNER JOIN tb_list_karyawan ON tb_list_karyawan.kode_list_karyawan=tb_job.nomor_kontrak INNER JOIN tb_list_job ON tb_list_job.kode_detail_job=tb_job.kode_detail_job LEFT JOIN tb_report_job on tb_report_job.kode_detail_job = tb_list_job.id AND tb_report_job.no_nip=tb_list_karyawan.no_nip WHERE tb_list_karyawan.no_nip =:nip AND report_date is not null AND report_date != '' ");
+				$stmt2 = $this->conn->prepare("SELECT tb_job.kode_detail_job FROM tb_kerjasama_perusahan INNER JOIN tb_list_karyawan ON tb_list_karyawan.kode_list_karyawan=tb_kerjasama_perusahan.kode_list_karyawan INNER JOIN tb_job ON tb_job.nomor_kontrak = tb_kerjasama_perusahan.nomor_kontrak INNER JOIN  tb_list_job ON tb_list_job.kode_detail_job=tb_job.kode_detail_job LEFT JOIN tb_report_job on tb_report_job.kode_detail_job = tb_list_job.id AND tb_report_job.no_nip=tb_list_karyawan.no_nip WHERE tb_list_karyawan.no_nip =:nip AND report_date is not null AND report_date != '' ");
 				$stmt2->execute(array(':nip'=>$u));				
 
 				$results=$stmt->fetchAll(PDO::FETCH_ASSOC);
